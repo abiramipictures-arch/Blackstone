@@ -1,0 +1,8 @@
+# Disable directory listing
+Options -Indexes
+
+# Specify the custom 403 error page
+# ErrorDocument 403 /envato/doc/doc/403.html
+
+# Specify the custom 403 error page
+# ErrorDocument 404 /envato/doc/doc/403.html

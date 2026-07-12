@@ -1,0 +1,152 @@
+@extends('admin.layout.page-app')
+@section('page_title', __('label.add_page'))
+@section('tab_title', __('label.add_page'))
+
+@section('content')
+	@include('admin.layout.sidebar')
+
+	<div class="right-content">
+		@include('admin.layout.header')
+
+        <!-- Summer notes -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css">
+
+        <!-- summernote background color  -->
+        <style>
+            :root{
+                --page-background-color : {{ $settings['page_background_color'] }} ;
+            }
+            .note-editable {
+                background-color: var(--page-background-color) !important;
+            }
+        </style>
+
+		<div class="body-content">
+			<!-- mobile title -->
+			<h1 class="page-title-sm">{{__('label.add_page')}}</h1>
+
+			<div class="row">
+                <div class="col-sm-10">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">{{__('label.dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.page.index') }}">{{__('label.page')}}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{__('label.add_page')}}</li>
+                    </ol>
+                </div>
+                <div class="col-sm-2">
+                    <a href="{{ route('admin.page.index') }}" class="btn btn-default-white mw-120">{{__('label.page_list')}}</a>
+                </div>
+            </div>
+
+			<div class="card custom-border-card">
+                <div class="card-header"><i class="fa-solid fa-plus-circle"></i>{{__('label.add_page')}}</div>
+                <form id="page_save" enctype="multipart/form-data">
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <div class="form-row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{__('label.title')}}<span class="text-danger">*</span></label>
+                                            <input name="title" type="text" class="form-control" placeholder="{{__('label.title_here')}}" autofocus>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>{{__('label.sub_title')}}<span class="text-danger">*</span></label>
+                                            <input name="page_subtitle" type="text" class="form-control" placeholder="{{__('label.sub_title_here')}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group ml-5">
+                                    <label>{{__('label.icon')}}<span class="text-danger">*</span></label>
+                                    <div class="avatar-upload my-2 image-upload-wrapper">
+                                        <input type='file' name="icon" class="imageUpload" accept=".png, .jpg, .jpeg, .webp" hidden/>
+                                        <label class="avatar-preview">
+                                            <img src="{{ asset('assets/imgs/upload_img.png') }}" class="imagePreview" />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{__('label.description')}}<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" name="description" id="summernote"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-default mw-120" onclick="save_page()"><i class="fa-solid fa-floppy-disk fa-lg mr-2"></i>{{__('label.save')}}</button>
+                        <a href="{{route('admin.page.index')}}" class="btn btn-cancel mw-120 ml-2">{{__('label.cancel')}}</a>
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    </div>
+                </form>
+            </div>
+		</div>
+	</div>
+@endsection
+
+@section('pagescript')
+    <!-- Summer notes -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#summernote').summernote({
+                placeholder: "{{__('label.description_here')}}",
+                height: 500,
+                toolbar: [
+                    // Style Formatting
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    // Font Options
+                    ['font', ['fontname', 'fontsize']],
+                    ['color', ['forecolor']],
+                    // Paragraph Formatting
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    // Insert Options
+                    ['insert', ['link', 'picture', 'video']],
+                    // Additional Formatting
+                    ['table', ['table']],
+                    // View Options
+                    ['view', ['fullscreen', 'codeview', 'help']],
+                ],
+                fontSizes: ['8', '10', '12', '14', '16', '18', '20', '22', '24', '26', '28', '30', '32', '34', '36', '38', '40', '44', '48', '52', '56', '60', '64', '68', '72', '78', '82', '86', '90', '94', '100'],
+                lineHeights: ['0.2', '0.3', '0.4', '0.5', '0.6', '0.8', '1.0', '1.2', '1.4', '1.5', '1.8', '2.0', '3.0'],   
+            });
+            // Remove tooltip attributes from toolbar buttons
+            $('.note-toolbar button').removeAttr('title data-original-title');
+        });
+
+        function save_page() {
+            if ('{{ Demo_Mode() }}' != 1) {
+                showError();
+                return;
+            }
+
+            $("#dvloader").show();
+            var formData = new FormData($("#page_save")[0]);
+            $.ajax({
+                type: 'POST',
+                url: '{{route("admin.page.store")}}',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(resp) {
+                    $("#dvloader").hide();
+                    get_responce_message(resp, 'page_save', '{{ route("admin.page.index") }}');
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    $("#dvloader").hide();
+                    toastr.error(errorThrown, textStatus);
+                }
+            });
+        }
+	</script>
+@endsection
