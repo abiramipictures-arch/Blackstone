@@ -20,7 +20,7 @@ jobs:
       
       - name: Build APK
         run: |
-          cd Appcode
+          cd Appcode/yourappname
           flutter pub get
           flutter build apk --release
       
@@ -28,4 +28,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: Appcode/build/app/outputs/flutter-apk/app-release.apk
+          path: Appcode/yourappname/build/app/outputs/flutter-apk/app-release.apk
