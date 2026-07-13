@@ -1,0 +1,15 @@
+workflows:
+  android-debug-workflow:
+    name: Android Debug Workflow
+    max_build_duration: 30
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+    scripts:
+      - name: Build APK
+        script: |
+          # கோப்பு ஏற்கனவே சரியான இடத்தில் இருப்பதால், cd கட்டளை தேவையில்லை
+          flutter pub get
+          flutter build apk --release
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
